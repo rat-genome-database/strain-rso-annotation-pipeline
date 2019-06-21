@@ -39,7 +39,7 @@ public class Dao extends AbstractDAO {
                 "   fa.TERM_ACC              = ot.TERM_ACC\n" +
                 "  AND fa.ANNOTATED_OBJECT_RGD_ID = st.RGD_ID\n" +
                 "  AND fa.ANNOTATED_OBJECT_RGD_ID = i.RGD_ID\n" +
-                "  AND i.OBJECT_STATUS      = 'ACTIVE'\n" +
+                "  AND i.object_status = 'ACTIVE'\n" +
                 "  AND ot.is_obsolete = 0\n" +
                 "  )\n" +
                 "WHERE fa.LAST_MODIFIED_BY=?\n" +
@@ -50,11 +50,11 @@ public class Dao extends AbstractDAO {
                 "    sysdate\n" +
                 "  FROM ONT_TERMS ot,\n" +
                 "    strains st,\n" +
-                "    rgd_ids\n" +
+                "    rgd_ids i\n" +
                 "  WHERE fa.TERM_ACC              = ot.TERM_ACC\n" +
                 "  AND fa.ANNOTATED_OBJECT_RGD_ID = st.RGD_ID\n" +
                 "  AND fa.ANNOTATED_OBJECT_RGD_ID = rgd_ids.RGD_ID\n" +
-                "  AND i.OBJECT_STATUS      = 'ACTIVE'\n" +
+                "  AND i.object_status = 'ACTIVE'\n" +
                 "  AND ot.is_obsolete = 0\n" +
                 ")";
         return update(sql, getCreatedBy());
