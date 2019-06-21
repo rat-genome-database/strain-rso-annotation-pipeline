@@ -2,6 +2,6 @@
 
 <beans>
     <bean id="manager" class="edu.mcw.rgd.pipelines.StrainRsoAnnotation" >
-        <property name="version" value="StrainRsoAnnotation v. 1.0.1 Oct 1, 2018" />
+        <property name="version" value="StrainRsoAnnotation  build 2019006-21" />
     </bean>
 </beans>

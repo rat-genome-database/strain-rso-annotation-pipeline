@@ -3,23 +3,14 @@ package edu.mcw.rgd.pipelines;
 import edu.mcw.rgd.dao.AbstractDAO;
 
 /**
- * Created by mtutaj on 5/30/2017.
- * <p>
+ * @author mtutaj
+ * @since 5/30/2017
  * All database code lands here
  */
 public class Dao {
 
     AbstractDAO adao = new AbstractDAO();
 
-    /*
-    public int deleteManuallyCreatedQtlRsoAnnotations() throws Exception {
-        String sql = "delete from FULL_ANNOT fa\n" +
-                "where fa.RGD_OBJECT_KEY=6\n" +
-                "and fa.ASPECT='S'\n" +
-                "and fa.LAST_MODIFIED_BY <> 181";
-        return adao.update(sql);
-    }
-*/
     public int markAnnotationsForProcessing() throws Exception {
         String sql = "UPDATE FULL_ANNOT\n" +
                 "SET FULL_ANNOT.LAST_MODIFIED_DATE=to_date('01/01/1900', 'MM/DD/YYYY')\n" +

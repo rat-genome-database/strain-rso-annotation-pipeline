@@ -7,16 +7,14 @@ APPDIR=/home/rgddata/pipelines/$APPNAME
 SERVER=`hostname -s | tr '[a-z]' '[A-Z]'`
 EMAIL_LIST=mtutaj@mcw.edu
 if [ "$SERVER" = "REED" ]; then
-  EMAIL_LIST=mtutaj@mcw.edu
+  EMAIL_LIST=mtutaj@mcw.edu,sjwang@mcw.edu
 fi
 
 cd $APPDIR
 pwd
-DB_OPTS="-Dspring.config=$APPDIR/../properties/default_db.xml"
-LOG4J_OPTS="-Dlog4j.configuration=file://$APPDIR/properties/log4j.properties"
-export STRAIN_RSO_ANNOTATION_OPTS="$DB_OPTS $LOG4J_OPTS"
-
-bin/$APPNAME "$@" 2>&1 | tee run.log
+java -jar -Dspring.config=$APPDIR/../properties/default_db.xml \
+    -Dlog4j.configuration=file://$APPDIR/properties/log4j.properties \
+    -jar lib/$APPNAME.jar "$@" 2>&1 | tee run.log
 
 /home/rgddata/pipelines/OntologyLoad/run_single.sh RS -skip_download
 
