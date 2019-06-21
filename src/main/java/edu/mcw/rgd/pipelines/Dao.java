@@ -53,7 +53,7 @@ public class Dao extends AbstractDAO {
                 "    rgd_ids i\n" +
                 "  WHERE fa.TERM_ACC              = ot.TERM_ACC\n" +
                 "  AND fa.ANNOTATED_OBJECT_RGD_ID = st.RGD_ID\n" +
-                "  AND fa.ANNOTATED_OBJECT_RGD_ID = rgd_ids.RGD_ID\n" +
+                "  AND fa.ANNOTATED_OBJECT_RGD_ID = i.RGD_ID\n" +
                 "  AND i.object_status = 'ACTIVE'\n" +
                 "  AND ot.is_obsolete = 0\n" +
                 ")";
@@ -106,7 +106,7 @@ public class Dao extends AbstractDAO {
             "  RGD_IDS i\n" +
             "WHERE os.SYNONYM_NAME LIKE 'RGD ID:%'\n" +
             "AND to_number(SUBSTR(os.SYNONYM_NAME,9, 100)) = st.RGD_ID\n" +
-            "AND st.rgd_id = rgd_ids.rgd_id\n" +
+            "AND st.rgd_id = i.rgd_id\n" +
             "AND ot.TERM_ACC = os.TERM_ACC\n" +
             "AND i.OBJECT_STATUS = 'ACTIVE'\n" +
             "  AND ot.is_obsolete = 0\n" +
