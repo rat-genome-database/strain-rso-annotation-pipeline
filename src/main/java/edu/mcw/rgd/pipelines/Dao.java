@@ -7,25 +7,25 @@ import edu.mcw.rgd.dao.AbstractDAO;
  * @since 5/30/2017
  * All database code lands here
  */
-public class Dao {
+public class Dao extends AbstractDAO {
 
-    AbstractDAO adao = new AbstractDAO();
+    private int createdBy;
+    private int refRgdId;
 
     public int markAnnotationsForProcessing() throws Exception {
-        String sql = "UPDATE FULL_ANNOT\n" +
-                "SET FULL_ANNOT.LAST_MODIFIED_DATE=to_date('01/01/1900', 'MM/DD/YYYY')\n" +
-                "WHERE FULL_ANNOT.LAST_MODIFIED_BY=180";
-        return adao.update(sql);
+        String sql = "UPDATE full_annot " +
+                "SET last_modified_date=NULL " +
+                "WHERE last_modified_by=?";
+        return update(sql, getCreatedBy());
     }
 
     public int updateStrainRsoAnnotations() throws Exception {
         String sql = "UPDATE FULL_ANNOT fa\n" +
-                "SET\n" +
-                "  (\n" +
-                "    term,\n" +
-                "    object_symbol,\n" +
-                "    object_name,\n" +
-                "    last_modified_date\n" +
+                "SET (\n" +
+                "    term," +
+                "    object_symbol," +
+                "    object_name," +
+                "    last_modified_date" +
                 "  )\n" +
                 "  =\n" +
                 "  (SELECT ot.TERM,\n" +
@@ -34,14 +34,15 @@ public class Dao {
                 "    sysdate\n" +
                 "  FROM ONT_TERMS ot,\n" +
                 "    strains st,\n" +
-                "    rgd_ids\n" +
+                "    rgd_ids i\n" +
                 "  WHERE \n" +
                 "   fa.TERM_ACC              = ot.TERM_ACC\n" +
                 "  AND fa.ANNOTATED_OBJECT_RGD_ID = st.RGD_ID\n" +
-                "  AND fa.ANNOTATED_OBJECT_RGD_ID = rgd_ids.RGD_ID\n" +
-                "  AND rgd_ids.OBJECT_STATUS      = 'ACTIVE'\n" +
+                "  AND fa.ANNOTATED_OBJECT_RGD_ID = i.RGD_ID\n" +
+                "  AND i.OBJECT_STATUS      = 'ACTIVE'\n" +
+                "  AND ot.is_obsolete = 0\n" +
                 "  )\n" +
-                "WHERE fa.LAST_MODIFIED_BY=180\n" +
+                "WHERE fa.LAST_MODIFIED_BY=?\n" +
                 "AND EXISTS\n" +
                 "  (SELECT ot.TERM,\n" +
                 "    st.STRAIN_SYMBOL,\n" +
@@ -53,17 +54,17 @@ public class Dao {
                 "  WHERE fa.TERM_ACC              = ot.TERM_ACC\n" +
                 "  AND fa.ANNOTATED_OBJECT_RGD_ID = st.RGD_ID\n" +
                 "  AND fa.ANNOTATED_OBJECT_RGD_ID = rgd_ids.RGD_ID\n" +
-                "  AND rgd_ids.OBJECT_STATUS      = 'ACTIVE'\n" +
+                "  AND i.OBJECT_STATUS      = 'ACTIVE'\n" +
+                "  AND ot.is_obsolete = 0\n" +
                 ")";
-        return adao.update(sql);
+        return update(sql, getCreatedBy());
     }
 
     public int deleteStrainRsoAnnotations() throws Exception {
-        String sql = "DELETE\n" +
-                "FROM FULL_ANNOT fa\n" +
-                "WHERE fa.LAST_MODIFIED_BY = 180\n" +
-                "AND fa.LAST_MODIFIED_DATE = to_date('01/01/1900', 'MM/DD/YYYY')";
-        return adao.update(sql);
+        String sql = "DELETE FROM full_annot fa\n" +
+                "WHERE fa.last_modified_by = ?" +
+                "AND fa.last_modified_date IS NULL";
+        return update(sql, getCreatedBy());
     }
 
     public int insertStrainRsoAnnotations() throws Exception {
@@ -90,31 +91,48 @@ public class Dao {
             "  5,\n" +
             "  'RGD',\n" +
             "  st.STRAIN_SYMBOL,\n" +
-            "  7241799,\n" +
+            "  ?,\n" +
             "  'IEA',\n" +
             "  'S',\n" +
             "  st.FULL_NAME,\n" +
             "  sysdate,\n" +
             "  sysdate,\n" +
             "  ot.TERM_ACC,\n" +
-            "  180,\n" +
-            "  180\n" +
+            "  ?,\n" +
+            "  ?\n" +
             "FROM ONT_TERMS ot,\n" +
             "  ONT_SYNONYMS os,\n" +
             "  strains st,\n" +
-            "  RGD_IDS\n" +
+            "  RGD_IDS i\n" +
             "WHERE os.SYNONYM_NAME LIKE 'RGD ID:%'\n" +
             "AND to_number(SUBSTR(os.SYNONYM_NAME,9, 100)) = st.RGD_ID\n" +
             "AND st.rgd_id = rgd_ids.rgd_id\n" +
             "AND ot.TERM_ACC = os.TERM_ACC\n" +
-            "AND rgd_ids.OBJECT_STATUS = 'ACTIVE'\n" +
+            "AND i.OBJECT_STATUS = 'ACTIVE'\n" +
+            "  AND ot.is_obsolete = 0\n" +
             "AND NOT EXISTS\n" +
             "  (SELECT fa.FULL_ANNOT_KEY\n" +
             "  FROM FULL_ANNOT fa\n" +
             "  WHERE fa.TERM_ACC = ot.TERM_ACC\n" +
             "  AND fa.ANNOTATED_OBJECT_RGD_ID = st.rgd_id\n" +
-            "  AND fa.created_by = 180\n" +
-            "  )";
-        return adao.update(sql);
+            "  AND fa.created_by = ?\n" +
+            ")";
+        return update(sql, getRefRgdId(), getCreatedBy(), getCreatedBy(), getCreatedBy());
+    }
+
+    public void setCreatedBy(int createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public int getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setRefRgdId(int refRgdId) {
+        this.refRgdId = refRgdId;
+    }
+
+    public int getRefRgdId() {
+        return refRgdId;
     }
 }

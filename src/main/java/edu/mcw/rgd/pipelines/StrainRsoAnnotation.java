@@ -12,6 +12,7 @@ import org.springframework.core.io.FileSystemResource;
 public class StrainRsoAnnotation {
 
     private String version;
+    private Dao dao;
 
     Logger log = Logger.getRootLogger();
 
@@ -33,8 +34,6 @@ public class StrainRsoAnnotation {
         long time0 = System.currentTimeMillis();
 
         log.info(getVersion());
-
-        Dao dao = new Dao();
 
         // Mark all annotations that were created by this pipeline: Last_modified=180
         int rowsAffected = dao.markAnnotationsForProcessing();
@@ -63,5 +62,13 @@ public class StrainRsoAnnotation {
 
     public String getVersion() {
         return version;
+    }
+
+    public void setDao(Dao dao) {
+        this.dao = dao;
+    }
+
+    public Dao getDao() {
+        return dao;
     }
 }

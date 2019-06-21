@@ -3,5 +3,11 @@
 <beans>
     <bean id="manager" class="edu.mcw.rgd.pipelines.StrainRsoAnnotation" >
         <property name="version" value="StrainRsoAnnotation  build 2019-06-21" />
+        <property name="dao" ref="dao"/>
+    </bean>
+
+    <bean id="dao" class="edu.mcw.rgd.pipelines.Dao" >
+        <property name="createdBy" value="180"/>
+        <property name="refRgdId" value="7241799"/>
     </bean>
 </beans>

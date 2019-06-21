@@ -1,5 +1,6 @@
 2019-06-21
-  updated gradle build file
+  hard coded values put to properties file
+  added logic to handle obsolete RS terms
 
 ver. 1.0.1 -- Oct 1, 2018
   moved from subversion to github
