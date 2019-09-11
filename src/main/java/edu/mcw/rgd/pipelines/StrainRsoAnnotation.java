@@ -6,6 +6,9 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.FileSystemResource;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * Created by mtutaj on 5/30/2017
  */
@@ -14,7 +17,7 @@ public class StrainRsoAnnotation {
     private String version;
     private Dao dao;
 
-    Logger log = Logger.getRootLogger();
+    Logger log = Logger.getLogger("summary");
 
     public static void main(String[] args) throws Exception {
 
@@ -35,25 +38,28 @@ public class StrainRsoAnnotation {
 
         log.info(getVersion());
 
-        // Mark all annotations that were created by this pipeline: Last_modified=180
-        int rowsAffected = dao.markAnnotationsForProcessing();
-        log.info("Annotations marked for processing: "+rowsAffected);
+        Date dateStart = new Date();
+        SimpleDateFormat sdt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        log.info("  started at: "+sdt.format(dateStart));
+        log.info("  "+dao.getConnectionInfo());
+        log.info("===");
 
         // Update valid annotations with the latest terms, names, symbols and last_modified_date
-        rowsAffected = dao.updateStrainRsoAnnotations();
+        int rowsAffected = dao.updateStrainRsoAnnotations();
         log.info("Annotations updated: "+rowsAffected);
 
         // Delete obsolete annotations which are not touched by the update annotations updates
         rowsAffected = dao.deleteStrainRsoAnnotations();
-        log.info("Records deleted: "+rowsAffected);
+        log.info("Annotations deleted: "+rowsAffected);
 
         // Insert new annotations
         rowsAffected = dao.insertStrainRsoAnnotations();
-        log.info("New records inserted: "+rowsAffected);
+        log.info("Annotations inserted: "+rowsAffected);
 
 
         String msg = "=== OK === elapsed "+ Utils.formatElapsedTime(time0, System.currentTimeMillis());
         log.info(msg);
+        log.info("");
     }
 
     public void setVersion(String version) {

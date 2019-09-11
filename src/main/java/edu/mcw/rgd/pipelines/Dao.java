@@ -1,6 +1,9 @@
 package edu.mcw.rgd.pipelines;
 
 import edu.mcw.rgd.dao.AbstractDAO;
+import edu.mcw.rgd.process.Utils;
+
+import java.util.Date;
 
 /**
  * @author mtutaj
@@ -11,13 +14,6 @@ public class Dao extends AbstractDAO {
 
     private int createdBy;
     private int refRgdId;
-
-    public int markAnnotationsForProcessing() throws Exception {
-        String sql = "UPDATE full_annot " +
-                "SET last_modified_date=NULL " +
-                "WHERE last_modified_by=?";
-        return update(sql, getCreatedBy());
-    }
 
     public int updateStrainRsoAnnotations() throws Exception {
         String sql = "UPDATE FULL_ANNOT fa\n" +
@@ -60,11 +56,17 @@ public class Dao extends AbstractDAO {
         return update(sql, getCreatedBy());
     }
 
+    /**
+     * delete annotations that are older than 1 day
+     * @return count of stale annotations deleted
+     */
     public int deleteStrainRsoAnnotations() throws Exception {
+
+        Date cutoffDate = Utils.addDaysToDate((Date)null, -1);
+
         String sql = "DELETE FROM full_annot fa\n" +
-                "WHERE fa.last_modified_by = ?" +
-                "AND fa.last_modified_date IS NULL";
-        return update(sql, getCreatedBy());
+                "WHERE fa.last_modified_by=? AND fa.last_modified_date<?";
+        return update(sql, getCreatedBy(), cutoffDate);
     }
 
     public int insertStrainRsoAnnotations() throws Exception {

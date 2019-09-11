@@ -11,11 +11,10 @@ if [ "$SERVER" = "REED" ]; then
 fi
 
 cd $APPDIR
-pwd
 java -jar -Dspring.config=$APPDIR/../properties/default_db.xml \
     -Dlog4j.configuration=file://$APPDIR/properties/log4j.properties \
-    -jar lib/$APPNAME.jar "$@" 2>&1 | tee run.log
+    -jar lib/$APPNAME.jar "$@" > run.log 2>&1
 
 /home/rgddata/pipelines/OntologyLoad/run_single.sh RS -skip_download
 
-mailx -s "[$SERVER] StrainRsoAnnotation pipeline OK" $EMAIL_LIST < $APPDIR/run.log
+mailx -s "[$SERVER] StrainRsoAnnotation pipeline OK" $EMAIL_LIST < $APPDIR/logs/simple_summary.log

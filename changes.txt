@@ -1,3 +1,6 @@
+2019-09-11
+  improved logic to handle obsolete annotations
+
 2019-06-21
   hard coded values put to properties file
   added logic to handle obsolete RS terms
