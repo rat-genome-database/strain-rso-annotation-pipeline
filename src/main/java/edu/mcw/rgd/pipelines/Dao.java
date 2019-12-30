@@ -80,7 +80,7 @@ public class Dao {
         List<Integer> fullAnnotKeys = new ArrayList<Integer>(obsoleteAnnots.size());
         for( Annotation a: obsoleteAnnots ) {
             fullAnnotKeys.add(a.getKey());
-            logDeleted.info(a.dump("|"));
+            logDeleted.debug(a.dump("|"));
         }
         annotationDAO.deleteAnnotations(fullAnnotKeys);
 
