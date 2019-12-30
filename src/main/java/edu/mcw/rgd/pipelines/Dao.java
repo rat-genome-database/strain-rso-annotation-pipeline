@@ -1,19 +1,31 @@
 package edu.mcw.rgd.pipelines;
 
-import edu.mcw.rgd.dao.AbstractDAO;
+import edu.mcw.rgd.dao.impl.AnnotationDAO;
+import edu.mcw.rgd.datamodel.ontology.Annotation;
 import edu.mcw.rgd.process.Utils;
+import org.apache.log4j.Logger;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author mtutaj
  * @since 5/30/2017
  * All database code lands here
  */
-public class Dao extends AbstractDAO {
+public class Dao {
+
+    private AnnotationDAO annotationDAO = new AnnotationDAO();
 
     private int createdBy;
     private int refRgdId;
+
+    private Logger logDeleted = Logger.getLogger("deleted");
+
+    public String getConnectionInfo() {
+        return annotationDAO.getConnectionInfo();
+    }
 
     public int updateStrainRsoAnnotations() throws Exception {
         String sql = "UPDATE FULL_ANNOT fa\n" +
@@ -53,20 +65,26 @@ public class Dao extends AbstractDAO {
                 "  AND i.object_status = 'ACTIVE'\n" +
                 "  AND ot.is_obsolete = 0\n" +
                 ")";
-        return update(sql, getCreatedBy());
+        return annotationDAO.update(sql, getCreatedBy());
     }
 
     /**
-     * delete annotations that are older than 1 day
-     * @return count of stale annotations deleted
+     * delete annotations that are older than 1 hour; also log all deleted annotations into deleted.log
+     * @return count of obsolete annotations deleted
      */
     public int deleteStrainRsoAnnotations() throws Exception {
 
-        Date cutoffDate = Utils.addDaysToDate((Date)null, -1);
+        Date cutoffDate = Utils.addHoursToDate(null, -1);
 
-        String sql = "DELETE FROM full_annot fa\n" +
-                "WHERE fa.last_modified_by=? AND fa.last_modified_date<?";
-        return update(sql, getCreatedBy(), cutoffDate);
+        List<Annotation> obsoleteAnnots = annotationDAO.getAnnotationsModifiedBeforeTimestamp(getCreatedBy(), cutoffDate, getRefRgdId());
+        List<Integer> fullAnnotKeys = new ArrayList<Integer>(obsoleteAnnots.size());
+        for( Annotation a: obsoleteAnnots ) {
+            fullAnnotKeys.add(a.getKey());
+            logDeleted.info(a.dump("|"));
+        }
+        annotationDAO.deleteAnnotations(fullAnnotKeys);
+
+        return obsoleteAnnots.size();
     }
 
     public int insertStrainRsoAnnotations() throws Exception {
@@ -119,7 +137,7 @@ public class Dao extends AbstractDAO {
             "  AND fa.ANNOTATED_OBJECT_RGD_ID = st.rgd_id\n" +
             "  AND fa.created_by = ?\n" +
             ")";
-        return update(sql, getRefRgdId(), getCreatedBy(), getCreatedBy(), getCreatedBy());
+        return annotationDAO.update(sql, getRefRgdId(), getCreatedBy(), getCreatedBy(), getCreatedBy());
     }
 
     public void setCreatedBy(int createdBy) {
