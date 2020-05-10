@@ -1,3 +1,6 @@
+May 10, 2020
+  updated jar dependencies
+
 2019-12-30
   added logging of deleted obsolete annotations
 
