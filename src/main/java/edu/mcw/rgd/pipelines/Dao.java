@@ -3,7 +3,8 @@ package edu.mcw.rgd.pipelines;
 import edu.mcw.rgd.dao.impl.AnnotationDAO;
 import edu.mcw.rgd.datamodel.ontology.Annotation;
 import edu.mcw.rgd.process.Utils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,7 +22,7 @@ public class Dao {
     private int createdBy;
     private int refRgdId;
 
-    private Logger logDeleted = Logger.getLogger("deleted");
+    private Logger logDeleted = LogManager.getLogger("deleted");
 
     public String getConnectionInfo() {
         return annotationDAO.getConnectionInfo();

@@ -12,10 +12,10 @@ fi
 
 cd $APPDIR
 java -jar -Dspring.config=$APPDIR/../properties/default_db.xml \
-    -Dlog4j.configuration=file://$APPDIR/properties/log4j.properties \
+    -Dlog4j.configurationFile=file://$APPDIR/properties/log4j2.xml \
     -jar lib/$APPNAME.jar "$@" > run.log 2>&1
 
-mailx -s "[$SERVER] StrainRsoAnnotation pipeline OK" $EMAIL_LIST < $APPDIR/logs/simple_summary.log
+mailx -s "[$SERVER] StrainRsoAnnotation pipeline OK" $EMAIL_LIST < $APPDIR/logs/summary.log
 
 /home/rgddata/pipelines/OntologyLoad/run_single.sh RS -skip_download &
 
