@@ -1,3 +1,6 @@
+Feb 02, 2022
+  updated oracle jdbc dep
+
 Dec 21, 2021
   updated log4j to avoid zero day exploit
 

@@ -2,7 +2,7 @@
 
 <beans>
     <bean id="manager" class="edu.mcw.rgd.pipelines.StrainRsoAnnotation" >
-        <property name="version" value="StrainRsoAnnotation  -- build Dec 21, 2021" />
+        <property name="version" value="StrainRsoAnnotation  -- build Feb 02, 2022" />
         <property name="dao" ref="dao"/>
     </bean>
 
