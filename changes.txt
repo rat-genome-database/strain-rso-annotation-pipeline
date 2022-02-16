@@ -1,3 +1,6 @@
+Feb 15, 2022
+  tuned up logging
+
 Feb 02, 2022
   updated oracle jdbc dep
 

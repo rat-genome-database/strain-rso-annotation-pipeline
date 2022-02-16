@@ -78,7 +78,7 @@ public class Dao {
         Date cutoffDate = Utils.addHoursToDate(null, -1);
 
         List<Annotation> obsoleteAnnots = annotationDAO.getAnnotationsModifiedBeforeTimestamp(getCreatedBy(), cutoffDate, getRefRgdId());
-        List<Integer> fullAnnotKeys = new ArrayList<Integer>(obsoleteAnnots.size());
+        List<Integer> fullAnnotKeys = new ArrayList<>(obsoleteAnnots.size());
         for( Annotation a: obsoleteAnnots ) {
             fullAnnotKeys.add(a.getKey());
             logDeleted.debug(a.dump("|"));
