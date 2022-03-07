@@ -13,7 +13,7 @@ apply plugin: 'application'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 mainClassName = 'edu.mcw.rgd.pipelines.StrainRsoAnnotation'
-String myAppName = 'StrainRsoAnnotation'
+String myAppName = 'strain-rso-annotation-pipeline'
 
 project.archivesBaseName = myAppName
 
@@ -25,9 +25,9 @@ dependencies {
     compile 'org.apache.commons:commons-dbcp2:2.9.0'
     compile 'org.apache.logging.log4j:log4j-api:2.17.1'
     compile 'org.apache.logging.log4j:log4j-core:2.17.1'
-    compile 'com.oracle.database.jdbc:ojdbc8:19.6.0.0'
-    compile 'org.springframework:spring-beans:5.1.6.RELEASE'
-    compile 'org.springframework:spring-jdbc:5.1.6.RELEASE'
+    compile 'com.oracle.database.jdbc:ojdbc8:19.7.0.0'
+    compile 'org.springframework:spring-beans:5.1.7.RELEASE'
+    compile 'org.springframework:spring-jdbc:5.1.7.RELEASE'
 
     compile fileTree(dir: 'lib', include: '*.jar')
 }

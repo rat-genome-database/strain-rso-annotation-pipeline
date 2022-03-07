@@ -1,3 +1,6 @@
+Mar 07, 2022
+  renamed to 'strain-rso-annotation-pipeline' (from StrainRsoAnnotation)
+
 Feb 15, 2022
   tuned up logging
 
