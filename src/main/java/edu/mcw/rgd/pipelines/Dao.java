@@ -2,10 +2,11 @@ package edu.mcw.rgd.pipelines;
 
 import edu.mcw.rgd.dao.impl.AnnotationDAO;
 import edu.mcw.rgd.datamodel.ontology.Annotation;
-import edu.mcw.rgd.process.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -26,6 +27,20 @@ public class Dao {
 
     public String getConnectionInfo() {
         return annotationDAO.getConnectionInfo();
+    }
+
+    /**
+     * current database (server) time, used as the deletion cutoff.
+     * It is sourced from the DB rather than the app machine so that it is comparable
+     * with the SYSDATE that the update/insert steps stamp into LAST_MODIFIED_DATE,
+     * even when the app and the database run on different machines whose clocks are
+     * slightly out of sync.
+     * @return database SYSDATE
+     * @throws Exception on spring framework dao failure
+     */
+    public Date getDbDate() throws Exception {
+        return new JdbcTemplate(annotationDAO.getDataSource())
+                .queryForObject("SELECT sysdate FROM dual", Timestamp.class);
     }
 
     public int updateStrainRsoAnnotations() throws Exception {
@@ -61,14 +76,14 @@ public class Dao {
     }
 
     /**
-     * delete annotations that are older than 1 hour; also log all deleted annotations into deleted.log
+     * delete annotations not refreshed by the update step, i.e. last modified before the
+     * given DB cutoff time; also log all deleted annotations into deleted.log
+     * @param cutoff DB-sourced timestamp captured before the update step (see getDbDate)
      * @return count of obsolete annotations deleted
      */
-    public int deleteStrainRsoAnnotations() throws Exception {
+    public int deleteStrainRsoAnnotations(Date cutoff) throws Exception {
 
-        Date cutoffDate = Utils.addHoursToDate(null, -1);
-
-        List<Annotation> obsoleteAnnots = annotationDAO.getAnnotationsModifiedBeforeTimestamp(getCreatedBy(), cutoffDate, getRefRgdId());
+        List<Annotation> obsoleteAnnots = annotationDAO.getAnnotationsModifiedBeforeTimestamp(getCreatedBy(), cutoff, getRefRgdId());
         List<Integer> fullAnnotKeys = new ArrayList<>(obsoleteAnnots.size());
         for( Annotation a: obsoleteAnnots ) {
             fullAnnotKeys.add(a.getKey());

@@ -45,12 +45,17 @@ public class StrainRsoAnnotation {
         log.info("  "+dao.getConnectionInfo());
         log.info("===");
 
+        // Capture the deletion cutoff from the DB clock BEFORE updating, so it is comparable
+        // with the SYSDATE that update/insert stamp into the rows -- robust even when the app
+        // and the database run on different machines with slightly out-of-sync clocks.
+        Date cutoff = dao.getDbDate();
+
         // Update valid annotations with the latest terms, names, symbols and last_modified_date
         int rowsAffected = dao.updateStrainRsoAnnotations();
         log.info("Annotations updated: "+rowsAffected);
 
         // Delete obsolete annotations which are not touched by the update annotations updates
-        rowsAffected = dao.deleteStrainRsoAnnotations();
+        rowsAffected = dao.deleteStrainRsoAnnotations(cutoff);
         log.info("Annotations deleted: "+rowsAffected);
 
         // Insert new annotations
