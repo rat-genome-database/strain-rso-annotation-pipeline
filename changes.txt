@@ -1,3 +1,6 @@
+Jun 15, 2026
+  fixed run.sh (stray -jar broke startup; repointed RS reload to ontology-load-pipeline); removed obsolete scripts/; updated dependencies
+
 Jun 05, 2026
   delete cutoff now sourced from DB clock (robust against app/DB clock skew); updated dependencies
 
