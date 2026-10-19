@@ -32,42 +32,42 @@ public class Dao {
     /**
      * current database (server) time, used as the deletion cutoff.
      * It is sourced from the DB rather than the app machine so that it is comparable
-     * with the SYSDATE that the update/insert steps stamp into LAST_MODIFIED_DATE,
+     * with the LOCALTIMESTAMP that the update/insert steps stamp into last_modified_date,
      * even when the app and the database run on different machines whose clocks are
      * slightly out of sync.
-     * @return database SYSDATE
+     * @return database LOCALTIMESTAMP
      * @throws Exception on spring framework dao failure
      */
     public Date getDbDate() throws Exception {
         return new JdbcTemplate(annotationDAO.getDataSource())
-                .queryForObject("SELECT sysdate FROM dual", Timestamp.class);
+                .queryForObject("SELECT LOCALTIMESTAMP(0)", Timestamp.class);
     }
 
     public int updateStrainRsoAnnotations() throws Exception {
         String sql = """
-            UPDATE FULL_ANNOT fa
+            UPDATE full_annot fa
             SET (term, object_symbol, object_name, last_modified_date)
               =
-              (SELECT ot.TERM, st.STRAIN_SYMBOL, st.FULL_NAME, sysdate
-              FROM ONT_TERMS ot,
+              (SELECT ot.term, st.strain_symbol, st.full_name, LOCALTIMESTAMP(0)
+              FROM ont_terms ot,
                 strains st,
                 rgd_ids i
               WHERE
-               fa.TERM_ACC              = ot.TERM_ACC
-              AND fa.ANNOTATED_OBJECT_RGD_ID = st.RGD_ID
-              AND fa.ANNOTATED_OBJECT_RGD_ID = i.RGD_ID
+               fa.term_acc              = ot.term_acc
+              AND fa.annotated_object_rgd_id = st.rgd_id
+              AND fa.annotated_object_rgd_id = i.rgd_id
               AND i.object_status = 'ACTIVE'
               AND ot.is_obsolete = 0
               )
-            WHERE fa.LAST_MODIFIED_BY=?
+            WHERE fa.last_modified_by=?
             AND EXISTS
-              (SELECT ot.TERM, st.STRAIN_SYMBOL, st.FULL_NAME, sysdate
-              FROM ONT_TERMS ot,
+              (SELECT ot.term, st.strain_symbol, st.full_name, LOCALTIMESTAMP(0)
+              FROM ont_terms ot,
                 strains st,
                 rgd_ids i
-              WHERE fa.TERM_ACC              = ot.TERM_ACC
-              AND fa.ANNOTATED_OBJECT_RGD_ID = st.RGD_ID
-              AND fa.ANNOTATED_OBJECT_RGD_ID = i.RGD_ID
+              WHERE fa.term_acc              = ot.term_acc
+              AND fa.annotated_object_rgd_id = st.rgd_id
+              AND fa.annotated_object_rgd_id = i.rgd_id
               AND i.object_status = 'ACTIVE'
               AND ot.is_obsolete = 0
             )
@@ -96,28 +96,27 @@ public class Dao {
 
     public int insertStrainRsoAnnotations() throws Exception {
         String sql = """
-            INSERT INTO FULL_ANNOT (
+            INSERT INTO full_annot (
                 full_annot_key, term, annotated_object_rgd_id, rgd_object_key, data_src,
                 object_symbol, ref_rgd_id, evidence, aspect, object_name,
                 created_date, last_modified_date, term_acc, created_by, last_modified_by
               )
-            SELECT FULL_ANNOT_SEQ.nextval, ot.TERM, st.RGD_ID, 5, 'RGD',
-              st.STRAIN_SYMBOL, ?, 'IEA', 'S', st.FULL_NAME,
-              sysdate, sysdate, ot.TERM_ACC, ?, ?
-            FROM ONT_TERMS ot,
-              ONT_SYNONYMS os,
+            SELECT nextval('full_annot_seq'), ot.term, st.rgd_id, 5, 'RGD',
+              st.strain_symbol, ?, 'IEA', 'S', st.full_name,
+              LOCALTIMESTAMP(0), LOCALTIMESTAMP(0), ot.term_acc, ?, ?
+            FROM ont_terms ot,
+              ont_synonyms os,
               strains st,
-              RGD_IDS i
-            WHERE os.SYNONYM_NAME LIKE 'RGD ID:%'
-              AND to_number(SUBSTR(os.SYNONYM_NAME,9, 100)) = st.RGD_ID
+              rgd_ids i
+            WHERE os.synonym_name = 'RGD ID: ' || st.rgd_id -- synonyms of RS terms are stored as 'RGD ID: 12345'
               AND st.rgd_id = i.rgd_id
-              AND ot.TERM_ACC = os.TERM_ACC
-              AND i.OBJECT_STATUS = 'ACTIVE'
+              AND ot.term_acc = os.term_acc
+              AND i.object_status = 'ACTIVE'
               AND ot.is_obsolete = 0
               AND NOT EXISTS
-              (SELECT fa.FULL_ANNOT_KEY FROM FULL_ANNOT fa
-               WHERE fa.TERM_ACC = ot.TERM_ACC
-                 AND fa.ANNOTATED_OBJECT_RGD_ID = st.rgd_id
+              (SELECT fa.full_annot_key FROM full_annot fa
+               WHERE fa.term_acc = ot.term_acc
+                 AND fa.annotated_object_rgd_id = st.rgd_id
                 AND fa.created_by = ?
                )
             """;

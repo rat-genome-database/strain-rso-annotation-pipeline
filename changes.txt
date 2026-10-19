@@ -1,5 +1,5 @@
 Oct 19, 2026
-  dev: migrated to postgres
+  dev: migrated to postgres (dependencies and sql)
 
 Jun 15, 2026
   fixed run.sh (stray -jar broke startup; repointed RS reload to ontology-load-pipeline); removed obsolete scripts/; updated dependencies
